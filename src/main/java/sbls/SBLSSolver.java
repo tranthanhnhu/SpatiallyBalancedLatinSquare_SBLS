@@ -26,7 +26,9 @@ public class SBLSSolver {
         SBLSCPModel sbls = new SBLSCPModel(n, true, true); // improved: symmetry breaking, AC-style
         Solver solver = sbls.getSolver();
 
-        if (solver.solve()) {
+        boolean found = solver.solve();
+
+        if (found) {
             int[][] grid = sbls.getSolutionGrid();
             System.out.println("SBLS solution for n=" + n);
             for (int r = 0; r < n; r++) {

@@ -3,6 +3,7 @@ package sbls;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
@@ -55,9 +56,18 @@ public class SBLSCPModel {
 
         // (3) Channeling: grid[r][pos[r][k]] = k+1  (color k+1 at column pos[r][k] in row r)
         for (int r = 0; r < n; r++) {
+            // pos[r] must be a permutation of [0, n-1]
+            model.allDifferent(pos[r]).post();
             for (int k = 0; k < n; k++) {
                 int color = k + 1;
-                model.element(model.intVar(color), grid[r], pos[r][k], 0).post();
+                // element constraint: grid[r][pos[r][k]] = color
+                // Using element(value, array, index, offset) where array[index+offset] = value
+                // Try using table constraint or direct channeling
+                for (int c = 0; c < n; c++) {
+                    // If pos[r][k] = c, then grid[r][c] = color
+                    BoolVar isEqual = model.arithm(pos[r][k], "=", c).reify();
+                    model.ifThen(isEqual, model.arithm(grid[r][c], "=", color));
+                }
             }
         }
 
@@ -72,16 +82,8 @@ public class SBLSCPModel {
                     rowDiffs[r] = absDiff;
                 }
                 IntVar D_ij = model.intVar("D_" + i + "_" + j, 0, n * n * (n - 1));
-                // sum(rowDiffs) = D_ij  via scalar: [rowDiffs | -D_ij] . [1,...,1,-1] = 0
-                IntVar[] sumVars = new IntVar[n + 1];
-                int[] coeffs = new int[n + 1];
-                for (int r = 0; r < n; r++) {
-                    sumVars[r] = rowDiffs[r];
-                    coeffs[r] = 1;
-                }
-                sumVars[n] = D_ij;
-                coeffs[n] = -1;
-                model.scalar(sumVars, coeffs, "=", 0).post();
+                // sum(rowDiffs) = D_ij
+                model.sum(rowDiffs, "=", D_ij).post();
                 model.arithm(D_ij, "=", D).post();
             }
         }

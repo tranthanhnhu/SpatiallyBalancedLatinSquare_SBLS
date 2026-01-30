@@ -2,41 +2,53 @@
 
 CP model in Choco for the Spatially Balanced Latin Square problem.
 
+## Project overview
+
+This project models and solves the **Spatially Balanced Latin Square (SBLS)** problem using **Constraint Programming** with **Choco Solver**.
+
+- **`SBLSCPModel`**: builds the CP model (Latin constraints + spatial balance + optional symmetry breaking).
+- **`SBLSSolver`**: solves a single order `n` and prints the square plus **Nodes** and **Time (ms)**.
+- **`ExperimentRunner`**: compares **Simple (baseline)** vs **Improved** configurations for multiple `n` values.
+
+Output metrics:
+- **Nodes**: number of search nodes visited (lower is generally better).
+- **Time (ms)**: solver runtime.
+
 ## Requirements
 
 - Java 11 or later
 - Maven 3.x
 
-## Build
+## How to run (Windows PowerShell)
 
-```bash
-mvn clean install
+Open PowerShell in the **project root folder** 
+
+### 1) Compile
+
+```powershell
+mvn clean compile
 ```
 
-## Run solver for one order n
+### 2) Run solver for one n
 
-```bash
-mvn exec:java -Dexec.mainClass="sbls.SBLSSolver" -Dexec.args="4"
+```powershell
+mvn '-Dexec.mainClass=sbls.SBLSSolver' '-Dexec.args=3' exec:java
+# or:
+mvn '-Dexec.mainClass=sbls.SBLSSolver' '-Dexec.args=5' exec:java
 ```
 
-(Replace `4` with desired n.)
 
-## Run experiments (compare Simple vs Improved)
+### 3) Run experiments (Simple vs Improved)
 
-```bash
-mvn exec:java -Dexec.mainClass="sbls.ExperimentRunner" -Dexec.args="6"
+```powershell
+mvn '-Dexec.mainClass=sbls.ExperimentRunner' '-Dexec.args=6' exec:java
 ```
 
 (Optional argument: max n to try, default 8. Output: time and nodes for each n.)
 
-## Run tests
-
-```bash
-mvn test
-```
 
 ## Project layout
 
 - `src/main/java/sbls/` – SBLSSolver, SBLSCPModel, ExperimentRunner
-- `src/test/java/sbls/` – SBLSCPModelTest, ExperimentRunnerTest
-- `report.txt` – Detailed report (constraints, filtering, strategies, results)
+- `REPORT.md` – Report (Markdown, exam-style, results-focused)
+- `evidence/` – Terminal screenshots (proof)
